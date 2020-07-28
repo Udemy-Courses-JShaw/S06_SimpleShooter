@@ -1,10 +1,12 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright - Metal Muffin Entertainment ©
 
 #pragma once
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "ShooterCharacter.generated.h"
+
+class AGun;
 
 UCLASS()
 class S06_SIMPLESHOOTER_API AShooterCharacter : public ACharacter
@@ -41,4 +43,12 @@ private:
 	void LookUpController(float AxisValue);
 
 	void LookRightController(float AxisValue);
+
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<AGun> GunClass;
+
+	UPROPERTY()
+	AGun* Gun;
+
+	void Fire();
 };

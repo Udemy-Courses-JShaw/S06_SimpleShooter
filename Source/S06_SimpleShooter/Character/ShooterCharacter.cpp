@@ -1,7 +1,8 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright - Metal Muffin Entertainment ©
 
 
 #include "ShooterCharacter.h"
+#include "../Weapon/Gun.h"
 
 // Sets default values
 AShooterCharacter::AShooterCharacter()
@@ -16,6 +17,10 @@ void AShooterCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	Gun = GetWorld()->SpawnActor<AGun>(GunClass);
+	GetMesh()->HideBoneByName(TEXT("weapon_r"), EPhysBodyOp::PBO_None);
+	Gun->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("WeaponSocket_R"));
+	Gun->SetOwner(this);
 }
 
 // Called every frame
@@ -38,9 +43,10 @@ void AShooterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 	//Controller Specific
 	PlayerInputComponent->BindAxis(TEXT("LookUpController"),	 this, &AShooterCharacter::LookUpController);
 	PlayerInputComponent->BindAxis(TEXT("LookRightController"),  this, &AShooterCharacter::LookRightController);
-
+	//Actions
 	PlayerInputComponent->BindAction(TEXT("Jump"),   EInputEvent::IE_Pressed, this, &ACharacter::Jump);
 	//PlayerInputComponent->BindAction(TEXT("Crouch"), EInputEvent::IE_Pressed, this, &ACharacter::Crouch);
+	PlayerInputComponent->BindAction(TEXT("Shoot"), EInputEvent::IE_Pressed, this, &AShooterCharacter::Fire);
 
 }
 
@@ -72,4 +78,9 @@ void AShooterCharacter::LookUpController(float AxisValue)
 void AShooterCharacter::LookRightController(float AxisValue)
 {
 	AddControllerYawInput(AxisValue * RotationRate * GetWorld()->GetDeltaSeconds());
+}
+
+void AShooterCharacter::Fire()
+{
+	Gun->PullTrigger();
 }
