@@ -31,16 +31,16 @@ void AShooterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
 	//InputBindings
-	PlayerInputComponent->BindAxis(FName("LookUp"),		this, &AShooterCharacter::LookUp);
-	PlayerInputComponent->BindAxis(FName("LookRight"),	this, &AShooterCharacter::LookRight);
-	PlayerInputComponent->BindAxis(FName("MoveForward"),this, &AShooterCharacter::MoveForward);
-	PlayerInputComponent->BindAxis(FName("MoveRight"),	this, &AShooterCharacter::MoveRight); 
-	
-	PlayerInputComponent->BindAxis(FName("LookUpController"), this, &AShooterCharacter::LookUpController);
-	PlayerInputComponent->BindAxis(FName("LookRightController"), this, &AShooterCharacter::LookRightController);
+	PlayerInputComponent->BindAxis(TEXT("LookUp"),		this, &AShooterCharacter::LookUp);
+	PlayerInputComponent->BindAxis(TEXT("LookRight"),	this, &AShooterCharacter::LookRight);
+	PlayerInputComponent->BindAxis(TEXT("MoveForward"), this, &AShooterCharacter::MoveForward);
+	PlayerInputComponent->BindAxis(TEXT("MoveRight"),	this, &AShooterCharacter::MoveRight);
+	//Controller Specific
+	PlayerInputComponent->BindAxis(TEXT("LookUpController"),	 this, &AShooterCharacter::LookUpController);
+	PlayerInputComponent->BindAxis(TEXT("LookRightController"),  this, &AShooterCharacter::LookRightController);
 
-
-	PlayerInputComponent->BindAction(FName("Jump"), EInputEvent::IE_Pressed, this, &ACharacter::Jump);
+	PlayerInputComponent->BindAction(TEXT("Jump"),   EInputEvent::IE_Pressed, this, &ACharacter::Jump);
+	//PlayerInputComponent->BindAction(TEXT("Crouch"), EInputEvent::IE_Pressed, this, &ACharacter::Crouch);
 
 }
 
