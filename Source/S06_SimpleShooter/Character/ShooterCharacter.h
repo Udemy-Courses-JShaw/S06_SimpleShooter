@@ -53,6 +53,9 @@ private:
 	UPROPERTY(VisibleAnywhere)
 	float Health = 200.f;
 
+	UFUNCTION(BlueprintPure)
+	float GetHealthPercent() const;
+
 	void LookUpController(float AxisValue);
 	
 	void LookRightController(float AxisValue);
