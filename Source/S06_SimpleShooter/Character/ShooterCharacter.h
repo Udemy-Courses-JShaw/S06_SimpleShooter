@@ -6,7 +6,15 @@
 #include "GameFramework/Character.h"
 #include "ShooterCharacter.generated.h"
 
-class AGun;
+class AGun_Base;
+
+UENUM()
+enum class Weapon : uint8
+{
+	Rifle,
+	Launcher,
+	Shotgun,
+};
 
 UCLASS()
 class S06_SIMPLESHOOTER_API AShooterCharacter : public ACharacter
@@ -21,6 +29,9 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	UPROPERTY(BlueprintReadOnly, Category = "Weapon")
+	Weapon CurrentWeapon;
+
 public:
 	UFUNCTION(BlueprintPure)
 	bool IsDead() const;
@@ -33,7 +44,19 @@ public:
 
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
 
+	AGun_Base* GetCurrentWeapon();
+
+	void SetCurrentWeapon(Weapon NewValue);
+
 	void Fire();
+
+	void Weapon1();
+
+	void Weapon2();
+
+	void NextWeapon();
+
+	void PreviousWeapon();
 
 private:
 	void MoveForward(float AxisValue);
@@ -44,14 +67,14 @@ private:
 	
 	void MoveRight(float AxisValue);
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = "Character")
 	float RotationRate = 120.f;
 
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditDefaultsOnly, Category = "Health")
 	float MaxHealth = 200.f;
 
-	UPROPERTY(VisibleAnywhere)
-	float Health = 200.f;
+	UPROPERTY(VisibleAnywhere, Category = "Health")
+	float Health = MaxHealth;
 
 	UFUNCTION(BlueprintPure)
 	float GetHealthPercent() const;
@@ -60,9 +83,19 @@ private:
 	
 	void LookRightController(float AxisValue);
 
-	UPROPERTY(EditDefaultsOnly)
-	TSubclassOf<AGun> GunClass;
-
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
+	TSubclassOf<AGun_Base> RifleClass;
 	UPROPERTY()
-	AGun* Gun;
+	AGun_Base* Rifle;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
+	TSubclassOf<AGun_Base> LauncherClass;
+	UPROPERTY()
+	AGun_Base* Launcher;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
+	TSubclassOf<AGun_Base> ShotgunClass;
+	UPROPERTY()
+	AGun_Base* Shotgun;
+
 };
