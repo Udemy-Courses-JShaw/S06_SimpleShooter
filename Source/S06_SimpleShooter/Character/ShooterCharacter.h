@@ -11,9 +11,12 @@ class AGun_Base;
 UENUM()
 enum class Weapon : uint8
 {
+	Pistol,
 	Rifle,
-	Launcher,
+	G_Launcher,
+	R_Launcher,
 	Shotgun,
+	Sniper,
 };
 
 UCLASS()
@@ -24,6 +27,12 @@ class S06_SIMPLESHOOTER_API AShooterCharacter : public ACharacter
 public:
 	// Sets default values for this character's properties
 	AShooterCharacter();
+
+	UFUNCTION(BlueprintCallable, Category = "Weapon")
+	AGun_Base* GetCurrentWeapon() const;
+	
+	UFUNCTION(BlueprintCallable, Category = "Weapon")
+	Weapon GetCurrentWeaponEnum() const;
 
 protected:
 	// Called when the game starts or when spawned
@@ -44,18 +53,21 @@ public:
 
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
 
-	AGun_Base* GetCurrentWeapon();
-
 	void SetCurrentWeapon(Weapon NewValue);
 
 	void Fire();
+	void Alt_Fire();
+
+	void ReloadWeapon();
 
 	void Weapon1();
-
 	void Weapon2();
+	void Weapon3();
+	void Weapon4(); 
+	void Weapon5();
+	void Weapon6();
 
 	void NextWeapon();
-
 	void PreviousWeapon();
 
 private:
@@ -84,18 +96,41 @@ private:
 	void LookRightController(float AxisValue);
 
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
-	TSubclassOf<AGun_Base> RifleClass;
+	TSubclassOf<AGun_Base> PistolClass;
+
 	UPROPERTY()
-	AGun_Base* Rifle;
+	AGun_Base* Pistol;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
-	TSubclassOf<AGun_Base> LauncherClass;
+	TSubclassOf<AGun_Base> RifleClass;
+
 	UPROPERTY()
-	AGun_Base* Launcher;
+	AGun_Base* Rifle;
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
+	TSubclassOf<AGun_Base> G_LauncherClass;
+
+	UPROPERTY()
+	AGun_Base* G_Launcher;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
+	TSubclassOf<AGun_Base> R_LauncherClass;
+
+	UPROPERTY()
+	AGun_Base* R_Launcher;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
 	TSubclassOf<AGun_Base> ShotgunClass;
+
 	UPROPERTY()
 	AGun_Base* Shotgun;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
+	TSubclassOf<AGun_Base> SniperClass;
+
+	UPROPERTY()
+	AGun_Base* Sniper;
+
+
 
 };

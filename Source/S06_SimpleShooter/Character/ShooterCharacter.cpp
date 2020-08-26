@@ -11,6 +11,7 @@ AShooterCharacter::AShooterCharacter()
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+	
 
 }
 
@@ -19,26 +20,41 @@ void AShooterCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	Health = MaxHealth;
-	
-	Rifle = GetWorld()->SpawnActor<AGun_Base>(RifleClass);
+	//hides default weapon attached to base mesh
 	GetMesh()->HideBoneByName(TEXT("weapon_r"), EPhysBodyOp::PBO_None);
+
+	Pistol = Cast<AGun_Base>(GetWorld()->SpawnActor<AGun_Base>(PistolClass));
+	Pistol->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("WeaponSocket_R"));
+	Pistol->SetOwner(this);
+	Pistol->SetActorHiddenInGame(true);
+
+	Rifle = Cast<AGun_Base>(GetWorld()->SpawnActor<AGun_Base>(RifleClass));
 	Rifle->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("WeaponSocket_R"));
 	Rifle->SetOwner(this);
 	Rifle->SetActorHiddenInGame(true);
 
-	Launcher = GetWorld()->SpawnActor<AGun_Base>(LauncherClass);
-	GetMesh()->HideBoneByName(TEXT("weapon_r"), EPhysBodyOp::PBO_None);
-	Launcher->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("WeaponSocket_R"));
-	Launcher->SetOwner(this);
-	Launcher->SetActorHiddenInGame(true);
+	G_Launcher = Cast<AGun_Base>(GetWorld()->SpawnActor<AGun_Base>(G_LauncherClass));
+	G_Launcher->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("WeaponSocket_R"));
+	G_Launcher->SetOwner(this);
+	G_Launcher->SetActorHiddenInGame(true);
 
-	Shotgun = GetWorld()->SpawnActor<AGun_Base>(ShotgunClass);
-	GetMesh()->HideBoneByName(TEXT("weapon_r"), EPhysBodyOp::PBO_None);
+	R_Launcher = Cast<AGun_Base>(GetWorld()->SpawnActor<AGun_Base>(R_LauncherClass));
+	R_Launcher->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("WeaponSocket_R"));
+	R_Launcher->SetOwner(this);
+	R_Launcher->SetActorHiddenInGame(true);
+
+	Shotgun = Cast<AGun_Base>(GetWorld()->SpawnActor<AGun_Base>(ShotgunClass));
 	Shotgun->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("WeaponSocket_R"));
 	Shotgun->SetOwner(this);
 	Shotgun->SetActorHiddenInGame(true);
-	//Default Weapon
+
+	Sniper = Cast<AGun_Base>(GetWorld()->SpawnActor<AGun_Base>(SniperClass));
+	Sniper->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("WeaponSocket_R"));
+	Sniper->SetOwner(this);
+	Sniper->SetActorHiddenInGame(true);
+	
+	//Set Defaults
+	Health = MaxHealth;
 	SetCurrentWeapon(Weapon::Rifle);
 }
 
@@ -68,13 +84,18 @@ void AShooterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCo
 	PlayerInputComponent->BindAxis(TEXT("LookRightController"),  this, &AShooterCharacter::LookRightController);
 	
 	//Actions
-	PlayerInputComponent->BindAction(TEXT("Jump"),  EInputEvent::IE_Pressed, this, &ACharacter::Jump);
-	PlayerInputComponent->BindAction(TEXT("Shoot"), EInputEvent::IE_Pressed, this, &AShooterCharacter::Fire);
-	//PlayerInputComponent->BindAction(TEXT("Crouch"),EInputEvent::IE_Pressed, this, &ACharacter::Crouch);
+	PlayerInputComponent->BindAction(TEXT("Jump"),    EInputEvent::IE_Pressed, this, &ACharacter::Jump);
+	PlayerInputComponent->BindAction(TEXT("Fire"),    EInputEvent::IE_Pressed, this, &AShooterCharacter::Fire);
+	PlayerInputComponent->BindAction(TEXT("Alt_Fire"),EInputEvent::IE_Pressed, this, &AShooterCharacter::Alt_Fire);
+	PlayerInputComponent->BindAction(TEXT("Reload"),  EInputEvent::IE_Pressed, this, &AShooterCharacter::ReloadWeapon);
 	
 	//Weapon Specific
 	PlayerInputComponent->BindAction(TEXT("Weapon1"), EInputEvent::IE_Pressed, this, &AShooterCharacter::Weapon1);
 	PlayerInputComponent->BindAction(TEXT("Weapon2"), EInputEvent::IE_Pressed, this, &AShooterCharacter::Weapon2);
+	PlayerInputComponent->BindAction(TEXT("Weapon3"), EInputEvent::IE_Pressed, this, &AShooterCharacter::Weapon3);
+	PlayerInputComponent->BindAction(TEXT("Weapon4"), EInputEvent::IE_Pressed, this, &AShooterCharacter::Weapon4);
+	PlayerInputComponent->BindAction(TEXT("Weapon5"), EInputEvent::IE_Pressed, this, &AShooterCharacter::Weapon5);
+	PlayerInputComponent->BindAction(TEXT("Weapon6"), EInputEvent::IE_Pressed, this, &AShooterCharacter::Weapon6);
 	PlayerInputComponent->BindAction(TEXT("NextWeapon"),     EInputEvent::IE_Pressed, this, &AShooterCharacter::NextWeapon);
 	PlayerInputComponent->BindAction(TEXT("PreviousWeapon"), EInputEvent::IE_Pressed, this, &AShooterCharacter::PreviousWeapon);
 	
@@ -140,29 +161,47 @@ void AShooterCharacter::LookRightController(float AxisValue)
 	AddControllerYawInput(AxisValue * RotationRate * GetWorld()->GetDeltaSeconds());
 }
 
-AGun_Base* AShooterCharacter::GetCurrentWeapon()
+AGun_Base* AShooterCharacter::GetCurrentWeapon() const
 {
-	if (CurrentWeapon == Weapon::Rifle)
+	if (CurrentWeapon == Weapon::Pistol)
+	{
+		if (Pistol != nullptr) { return Pistol; }
+	}
+	else if (CurrentWeapon == Weapon::Rifle)
 	{
 		if (Rifle != nullptr) { return Rifle; }
 	}
-	else if (CurrentWeapon == Weapon::Launcher)
+	else if (CurrentWeapon == Weapon::G_Launcher)
 	{
-		if (Launcher != nullptr) { return Launcher; }
+		if (G_Launcher != nullptr) { return G_Launcher; }
+	}
+	else if (CurrentWeapon == Weapon::R_Launcher)
+	{
+		if (R_Launcher != nullptr) { return R_Launcher; }
+	}
+	else if (CurrentWeapon == Weapon::Shotgun)
+	{
+		if (Shotgun != nullptr) { return Shotgun; }
 	}
 	else
 	{
-		if (Shotgun != nullptr) { return Shotgun; }
+		if (Sniper != nullptr) { return Sniper; }
 	}
 
 	//safe value
 	return Rifle;
 }
 
+Weapon AShooterCharacter::GetCurrentWeaponEnum() const
+{
+	return CurrentWeapon;
+}
+
 void AShooterCharacter::SetCurrentWeapon(Weapon NewValue)
 {
 	GetCurrentWeapon()->SetActorHiddenInGame(true);
 	CurrentWeapon = NewValue;
+	UE_LOG(LogTemp, Warning, TEXT("Weapon: %s"), *GetCurrentWeapon()->GetFName().ToString())
 	GetCurrentWeapon()->SetActorHiddenInGame(false);
 }
 
@@ -171,38 +210,98 @@ void AShooterCharacter::Fire()
 	GetCurrentWeapon()->PullTrigger();
 }
 
+void AShooterCharacter::Alt_Fire()
+{
+	GetCurrentWeapon()->Alt_PullTrigger();
+}
+
+void AShooterCharacter::ReloadWeapon()
+{
+	GetCurrentWeapon()->Reload();
+}
+
 void AShooterCharacter::Weapon1()
 {
-	SetCurrentWeapon(Weapon::Rifle);
+	SetCurrentWeapon(Weapon::Pistol);
 }
 
 void AShooterCharacter::Weapon2()
 {
-	SetCurrentWeapon(Weapon::Launcher);
+	SetCurrentWeapon(Weapon::Rifle);
+}
+
+void AShooterCharacter::Weapon3()
+{
+	SetCurrentWeapon(Weapon::G_Launcher);
+}
+
+void AShooterCharacter::Weapon4()
+{
+	SetCurrentWeapon(Weapon::R_Launcher);
+}
+
+void AShooterCharacter::Weapon5()
+{
+	SetCurrentWeapon(Weapon::Shotgun);
+}
+
+void AShooterCharacter::Weapon6()
+{
+	SetCurrentWeapon(Weapon::Sniper);
 }
 
 void AShooterCharacter::NextWeapon()
 {
-	if (CurrentWeapon == Weapon::Rifle)
+	if (CurrentWeapon == Weapon::Sniper)
 	{
-		SetCurrentWeapon(Weapon::Launcher);
+		SetCurrentWeapon(Weapon::Pistol);
 	}
-	else if (CurrentWeapon == Weapon::Launcher)
-	{
-		SetCurrentWeapon(Weapon::Rifle);
-	}
-	//TODO: add Shotgun when inplemented
-}
-
-void AShooterCharacter::PreviousWeapon()
-{
-	if (CurrentWeapon == Weapon::Launcher)
+	else if (CurrentWeapon == Weapon::Pistol)
 	{
 		SetCurrentWeapon(Weapon::Rifle);
 	}
 	else if (CurrentWeapon == Weapon::Rifle)
 	{
-		SetCurrentWeapon(Weapon::Launcher);
+		SetCurrentWeapon(Weapon::G_Launcher);
 	}
-	//TODO: add Shotgun when inplemented
+	else if (CurrentWeapon == Weapon::G_Launcher)
+	{
+		SetCurrentWeapon(Weapon::R_Launcher);
+	}
+	else if (CurrentWeapon == Weapon::R_Launcher)
+	{
+		SetCurrentWeapon(Weapon::Shotgun);
+	}
+	else if (CurrentWeapon == Weapon::Shotgun)
+	{
+		SetCurrentWeapon(Weapon::Sniper);
+	}
+}
+
+void AShooterCharacter::PreviousWeapon()
+{
+	if (CurrentWeapon == Weapon::Sniper)
+	{
+		SetCurrentWeapon(Weapon::Shotgun);
+	}
+	else if (CurrentWeapon == Weapon::Shotgun)
+	{
+		SetCurrentWeapon(Weapon::R_Launcher);
+	}
+	else if (CurrentWeapon == Weapon::R_Launcher)
+	{
+		SetCurrentWeapon(Weapon::G_Launcher);
+	}
+	else if (CurrentWeapon == Weapon::G_Launcher)
+	{
+		SetCurrentWeapon(Weapon::Rifle);
+	}
+	else if (CurrentWeapon == Weapon::Rifle)
+	{
+		SetCurrentWeapon(Weapon::Pistol);
+	}
+	else if (CurrentWeapon == Weapon::Pistol)
+	{
+		SetCurrentWeapon(Weapon::Sniper);
+	}
 }

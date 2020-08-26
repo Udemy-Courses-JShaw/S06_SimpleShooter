@@ -2,12 +2,12 @@ Level Layout
 	- Time? AI Spawners
 
 Weapon Switching
-	- Weapon Array
-	- Spawn All Weapons
-	- ActiveIndex Variable
-	- Hide all but active
+	- Weapon Array -DONE
+	- Spawn All Weapons -DONE
+	- ActiveIndex Variable -DONE
+	- Hide all but active -DONE
 	- Bind switch input
-	- Set ActiveIndex and update hidden
+	- Set ActiveIndex and update hidden -DONE
 	- Set pulltrigger to active weapon
 
 Weapon Ammo
