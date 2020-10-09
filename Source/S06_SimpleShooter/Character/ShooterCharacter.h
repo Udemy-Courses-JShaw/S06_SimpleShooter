@@ -28,56 +28,59 @@ public:
 	// Sets default values for this character's properties
 	AShooterCharacter();
 
+	// Called to bind functionality to input
+	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+protected:
+	// Called when the game starts or when spawned
+	virtual void BeginPlay() override;
+
+public:
+	// Called every frame
+	virtual void Tick(float DeltaTime) override;
+	
+	UFUNCTION(BlueprintPure)
+	bool IsDead() const;
+	
+	UPROPERTY(BlueprintReadOnly, Category = "Weapon")
+	Weapon CurrentWeapon;
+	
 	UFUNCTION(BlueprintCallable, Category = "Weapon")
 	AGun_Base* GetCurrentWeapon() const;
 	
 	UFUNCTION(BlueprintCallable, Category = "Weapon")
 	Weapon GetCurrentWeaponEnum() const;
 
-protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
-
-	UPROPERTY(BlueprintReadOnly, Category = "Weapon")
-	Weapon CurrentWeapon;
-
-public:
-	UFUNCTION(BlueprintPure)
-	bool IsDead() const;
-
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
-
-	// Called to bind functionality to input
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	void SetCurrentWeapon(Weapon NewValue);
 
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
 
-	void SetCurrentWeapon(Weapon NewValue);
-
+	UFUNCTION(BlueprintCallable, Category = "Action")
 	void Fire();
-	void Alt_Fire();
+
+	UFUNCTION(BlueprintCallable, Category = "Action")
+	void Alt_Fire_Pressed();
+	
+	UFUNCTION(BlueprintCallable, Category = "Action")
+	void Alt_Fire_Released();
 
 	void ReloadWeapon();
-
 	void Weapon1();
 	void Weapon2();
 	void Weapon3();
 	void Weapon4(); 
 	void Weapon5();
 	void Weapon6();
-
 	void NextWeapon();
 	void PreviousWeapon();
 
 private:
 	void MoveForward(float AxisValue);
-	
 	void LookUp(float AxisValue);
-	
 	void LookRight(float AxisValue);
-	
 	void MoveRight(float AxisValue);
+	void LookUpController(float AxisValue);
+	void LookRightController(float AxisValue);
 
 	UPROPERTY(EditAnywhere, Category = "Character")
 	float RotationRate = 120.f;
@@ -90,10 +93,6 @@ private:
 
 	UFUNCTION(BlueprintPure)
 	float GetHealthPercent() const;
-
-	void LookUpController(float AxisValue);
-	
-	void LookRightController(float AxisValue);
 
 	UPROPERTY(EditDefaultsOnly, Category = "Weapon")
 	TSubclassOf<AGun_Base> PistolClass;
@@ -130,7 +129,5 @@ private:
 
 	UPROPERTY()
 	AGun_Base* Sniper;
-
-
 
 };

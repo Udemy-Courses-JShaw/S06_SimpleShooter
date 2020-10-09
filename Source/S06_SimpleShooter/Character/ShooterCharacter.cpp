@@ -15,6 +15,39 @@ AShooterCharacter::AShooterCharacter()
 
 }
 
+// Called to bind functionality to input
+void AShooterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
+{
+	Super::SetupPlayerInputComponent(PlayerInputComponent);
+
+	PlayerInputComponent->BindAxis(TEXT("LookUp"),		this, &AShooterCharacter::LookUp);
+	PlayerInputComponent->BindAxis(TEXT("LookRight"),	this, &AShooterCharacter::LookRight);
+	PlayerInputComponent->BindAxis(TEXT("MoveForward"), this, &AShooterCharacter::MoveForward);
+	PlayerInputComponent->BindAxis(TEXT("MoveRight"),	this, &AShooterCharacter::MoveRight);
+	//Controller Specific
+	PlayerInputComponent->BindAxis(TEXT("LookUpController"),	this, &AShooterCharacter::LookUpController);
+	PlayerInputComponent->BindAxis(TEXT("LookRightController"), this, &AShooterCharacter::LookRightController);
+
+	//Actions
+	PlayerInputComponent->BindAction(TEXT("Jump"),		EInputEvent::IE_Pressed, this, &ACharacter::Jump);
+	PlayerInputComponent->BindAction(TEXT("Reload"),	EInputEvent::IE_Pressed, this, &AShooterCharacter::ReloadWeapon);
+	PlayerInputComponent->BindAction(TEXT("Fire"),		EInputEvent::IE_Pressed, this, &AShooterCharacter::Fire);
+	PlayerInputComponent->BindAction(TEXT("Alt_Fire"),	EInputEvent::IE_Pressed, this, &AShooterCharacter::Alt_Fire_Pressed);
+	PlayerInputComponent->BindAction(TEXT("Alt_Fire"),	EInputEvent::IE_Released,this, &AShooterCharacter::Alt_Fire_Released);
+
+	//Weapon Specific
+	PlayerInputComponent->BindAction(TEXT("Weapon1"),		 EInputEvent::IE_Pressed, this, &AShooterCharacter::Weapon1);
+	PlayerInputComponent->BindAction(TEXT("Weapon2"),		 EInputEvent::IE_Pressed, this, &AShooterCharacter::Weapon2);
+	PlayerInputComponent->BindAction(TEXT("Weapon3"),		 EInputEvent::IE_Pressed, this, &AShooterCharacter::Weapon3);
+	PlayerInputComponent->BindAction(TEXT("Weapon4"),		 EInputEvent::IE_Pressed, this, &AShooterCharacter::Weapon4);
+	PlayerInputComponent->BindAction(TEXT("Weapon5"),		 EInputEvent::IE_Pressed, this, &AShooterCharacter::Weapon5);
+	PlayerInputComponent->BindAction(TEXT("Weapon6"),		 EInputEvent::IE_Pressed, this, &AShooterCharacter::Weapon6);
+	PlayerInputComponent->BindAction(TEXT("NextWeapon"),	 EInputEvent::IE_Pressed, this, &AShooterCharacter::NextWeapon);
+	PlayerInputComponent->BindAction(TEXT("PreviousWeapon"), EInputEvent::IE_Pressed, this, &AShooterCharacter::PreviousWeapon);
+
+}
+
+
 // Called when the game starts or when spawned
 void AShooterCharacter::BeginPlay()
 {
@@ -33,10 +66,11 @@ void AShooterCharacter::BeginPlay()
 	Rifle->SetOwner(this);
 	Rifle->SetActorHiddenInGame(true);
 
-	G_Launcher = Cast<AGun_Base>(GetWorld()->SpawnActor<AGun_Base>(G_LauncherClass));
-	G_Launcher->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("WeaponSocket_R"));
-	G_Launcher->SetOwner(this);
-	G_Launcher->SetActorHiddenInGame(true);
+	// Removing Grenade launcher for now....
+	//G_Launcher = Cast<AGun_Base>(GetWorld()->SpawnActor<AGun_Base>(G_LauncherClass));
+	//G_Launcher->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("WeaponSocket_R"));
+	//G_Launcher->SetOwner(this);
+	//G_Launcher->SetActorHiddenInGame(true);
 
 	R_Launcher = Cast<AGun_Base>(GetWorld()->SpawnActor<AGun_Base>(R_LauncherClass));
 	R_Launcher->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, TEXT("WeaponSocket_R"));
@@ -58,11 +92,6 @@ void AShooterCharacter::BeginPlay()
 	SetCurrentWeapon(Weapon::Rifle);
 }
 
-bool AShooterCharacter::IsDead() const
-{
-	return Health <= 0;
-}
-
 // Called every frame
 void AShooterCharacter::Tick(float DeltaTime)
 {
@@ -70,95 +99,9 @@ void AShooterCharacter::Tick(float DeltaTime)
 
 }
 
-// Called to bind functionality to input
-void AShooterCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
+bool AShooterCharacter::IsDead() const
 {
-	Super::SetupPlayerInputComponent(PlayerInputComponent);
-
-	PlayerInputComponent->BindAxis(TEXT("LookUp"),		this, &AShooterCharacter::LookUp);
-	PlayerInputComponent->BindAxis(TEXT("LookRight"),	this, &AShooterCharacter::LookRight);
-	PlayerInputComponent->BindAxis(TEXT("MoveForward"), this, &AShooterCharacter::MoveForward);
-	PlayerInputComponent->BindAxis(TEXT("MoveRight"),	this, &AShooterCharacter::MoveRight);
-	//Controller Specific
-	PlayerInputComponent->BindAxis(TEXT("LookUpController"),	 this, &AShooterCharacter::LookUpController);
-	PlayerInputComponent->BindAxis(TEXT("LookRightController"),  this, &AShooterCharacter::LookRightController);
-	
-	//Actions
-	PlayerInputComponent->BindAction(TEXT("Jump"),    EInputEvent::IE_Pressed, this, &ACharacter::Jump);
-	PlayerInputComponent->BindAction(TEXT("Fire"),    EInputEvent::IE_Pressed, this, &AShooterCharacter::Fire);
-	PlayerInputComponent->BindAction(TEXT("Alt_Fire"),EInputEvent::IE_Pressed, this, &AShooterCharacter::Alt_Fire);
-	PlayerInputComponent->BindAction(TEXT("Reload"),  EInputEvent::IE_Pressed, this, &AShooterCharacter::ReloadWeapon);
-	
-	//Weapon Specific
-	PlayerInputComponent->BindAction(TEXT("Weapon1"), EInputEvent::IE_Pressed, this, &AShooterCharacter::Weapon1);
-	PlayerInputComponent->BindAction(TEXT("Weapon2"), EInputEvent::IE_Pressed, this, &AShooterCharacter::Weapon2);
-	PlayerInputComponent->BindAction(TEXT("Weapon3"), EInputEvent::IE_Pressed, this, &AShooterCharacter::Weapon3);
-	PlayerInputComponent->BindAction(TEXT("Weapon4"), EInputEvent::IE_Pressed, this, &AShooterCharacter::Weapon4);
-	PlayerInputComponent->BindAction(TEXT("Weapon5"), EInputEvent::IE_Pressed, this, &AShooterCharacter::Weapon5);
-	PlayerInputComponent->BindAction(TEXT("Weapon6"), EInputEvent::IE_Pressed, this, &AShooterCharacter::Weapon6);
-	PlayerInputComponent->BindAction(TEXT("NextWeapon"),     EInputEvent::IE_Pressed, this, &AShooterCharacter::NextWeapon);
-	PlayerInputComponent->BindAction(TEXT("PreviousWeapon"), EInputEvent::IE_Pressed, this, &AShooterCharacter::PreviousWeapon);
-	
-}
-
-float AShooterCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
-{
-	float DamageToApply = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
-	DamageToApply = FMath::Min(Health, DamageToApply);
-	if (Health >= 0)
-	{
-		Health -= DamageToApply;
-		UE_LOG(LogTemp, Warning, TEXT("Remaining Health: %f"), Health)
-	}
-
-	if (IsDead())
-	{
-		AS06_SimpleShooterGameModeBase* GameMode = GetWorld()->GetAuthGameMode<AS06_SimpleShooterGameModeBase>();
-		if (GameMode != nullptr)
-		{
-			GameMode->PawnKilled(this);
-		}
-		
-		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-		DetachFromControllerPendingDestroy();
-	}
-
-	return DamageToApply;
-}
-
-void AShooterCharacter::MoveForward(float AxisValue)
-{
-	AddMovementInput(GetActorForwardVector() * AxisValue);
-}
-
-void AShooterCharacter::LookUp(float AxisValue)
-{
-	AddControllerPitchInput(AxisValue);
-}
-
-void AShooterCharacter::LookRight(float AxisValue)
-{
-	AddControllerYawInput(AxisValue);
-}
-
-void AShooterCharacter::MoveRight(float AxisValue)
-{
-	AddMovementInput(GetActorRightVector() * AxisValue);
-}
-
-float AShooterCharacter::GetHealthPercent() const
-{
-	return Health / MaxHealth;
-}
-
-void AShooterCharacter::LookUpController(float AxisValue)
-{
-	AddControllerPitchInput(AxisValue * RotationRate * GetWorld()->GetDeltaSeconds());
-}
-
-void AShooterCharacter::LookRightController(float AxisValue)
-{
-	AddControllerYawInput(AxisValue * RotationRate * GetWorld()->GetDeltaSeconds());
+	return Health <= 0;
 }
 
 AGun_Base* AShooterCharacter::GetCurrentWeapon() const
@@ -171,10 +114,11 @@ AGun_Base* AShooterCharacter::GetCurrentWeapon() const
 	{
 		if (Rifle != nullptr) { return Rifle; }
 	}
-	else if (CurrentWeapon == Weapon::G_Launcher)
-	{
-		if (G_Launcher != nullptr) { return G_Launcher; }
-	}
+	//TODO: Make Grenade launcher work
+	//else if (CurrentWeapon == Weapon::G_Launcher)
+	//{
+	//	if (G_Launcher != nullptr) { return G_Launcher; }
+	//}
 	else if (CurrentWeapon == Weapon::R_Launcher)
 	{
 		if (R_Launcher != nullptr) { return R_Launcher; }
@@ -205,14 +149,44 @@ void AShooterCharacter::SetCurrentWeapon(Weapon NewValue)
 	GetCurrentWeapon()->SetActorHiddenInGame(false);
 }
 
+float AShooterCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+{
+	float DamageToApply = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+	DamageToApply = FMath::Min(Health, DamageToApply);
+	if (Health >= 0)
+	{
+		Health -= DamageToApply;
+		UE_LOG(LogTemp, Warning, TEXT("Remaining Health: %f"), Health)
+	}
+
+	if (IsDead())
+	{
+		AS06_SimpleShooterGameModeBase* GameMode = GetWorld()->GetAuthGameMode<AS06_SimpleShooterGameModeBase>();
+		if (GameMode != nullptr)
+		{
+			GameMode->PawnKilled(this);
+		}
+		
+		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		DetachFromControllerPendingDestroy();
+	}
+
+	return DamageToApply;
+}
+
 void AShooterCharacter::Fire()
 {
 	GetCurrentWeapon()->PullTrigger();
 }
 
-void AShooterCharacter::Alt_Fire()
+void AShooterCharacter::Alt_Fire_Pressed()
 {
-	GetCurrentWeapon()->Alt_PullTrigger();
+	GetCurrentWeapon()->Alt_PullTrigger(true);
+}
+
+void AShooterCharacter::Alt_Fire_Released()
+{
+	GetCurrentWeapon()->Alt_PullTrigger(false);
 }
 
 void AShooterCharacter::ReloadWeapon()
@@ -232,7 +206,7 @@ void AShooterCharacter::Weapon2()
 
 void AShooterCharacter::Weapon3()
 {
-	SetCurrentWeapon(Weapon::G_Launcher);
+	SetCurrentWeapon(Weapon::Sniper);
 }
 
 void AShooterCharacter::Weapon4()
@@ -247,7 +221,9 @@ void AShooterCharacter::Weapon5()
 
 void AShooterCharacter::Weapon6()
 {
-	SetCurrentWeapon(Weapon::Sniper);
+	UE_LOG(LogTemp, Warning, TEXT("No Grenade launcher for now...."))
+	//TODO: Make Grenade launcher work
+	//SetCurrentWeapon(Weapon::G_Launcher);
 }
 
 void AShooterCharacter::NextWeapon()
@@ -262,10 +238,11 @@ void AShooterCharacter::NextWeapon()
 	}
 	else if (CurrentWeapon == Weapon::Rifle)
 	{
-		SetCurrentWeapon(Weapon::G_Launcher);
-	}
-	else if (CurrentWeapon == Weapon::G_Launcher)
-	{
+	//TODO: Make Grenade launcher work
+	//	SetCurrentWeapon(Weapon::G_Launcher);
+	//}
+	//else if (CurrentWeapon == Weapon::G_Launcher)
+	//{
 		SetCurrentWeapon(Weapon::R_Launcher);
 	}
 	else if (CurrentWeapon == Weapon::R_Launcher)
@@ -290,10 +267,11 @@ void AShooterCharacter::PreviousWeapon()
 	}
 	else if (CurrentWeapon == Weapon::R_Launcher)
 	{
-		SetCurrentWeapon(Weapon::G_Launcher);
-	}
-	else if (CurrentWeapon == Weapon::G_Launcher)
-	{
+	//TODO: Make Grenade launcher work
+	//	SetCurrentWeapon(Weapon::G_Launcher);
+	//}
+	//else if (CurrentWeapon == Weapon::G_Launcher)
+	//{
 		SetCurrentWeapon(Weapon::Rifle);
 	}
 	else if (CurrentWeapon == Weapon::Rifle)
@@ -304,4 +282,39 @@ void AShooterCharacter::PreviousWeapon()
 	{
 		SetCurrentWeapon(Weapon::Sniper);
 	}
+}
+
+void AShooterCharacter::MoveForward(float AxisValue)
+{
+	AddMovementInput(GetActorForwardVector() * AxisValue);
+}
+
+void AShooterCharacter::LookUp(float AxisValue)
+{
+	AddControllerPitchInput(AxisValue);
+}
+
+void AShooterCharacter::LookRight(float AxisValue)
+{
+	AddControllerYawInput(AxisValue);
+}
+
+void AShooterCharacter::MoveRight(float AxisValue)
+{
+	AddMovementInput(GetActorRightVector() * AxisValue);
+}
+
+void AShooterCharacter::LookUpController(float AxisValue)
+{
+	AddControllerPitchInput(AxisValue * RotationRate * GetWorld()->GetDeltaSeconds());
+}
+
+void AShooterCharacter::LookRightController(float AxisValue)
+{
+	AddControllerYawInput(AxisValue * RotationRate * GetWorld()->GetDeltaSeconds());
+}
+
+float AShooterCharacter::GetHealthPercent() const
+{
+	return Health / MaxHealth;
 }
