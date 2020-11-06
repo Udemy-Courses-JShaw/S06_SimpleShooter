@@ -72,4 +72,4 @@ Plugins/*/Intermediate/*
 
 # Cache files for the editor to use
 DerivedDataCache/*
-Release/Alpha_v0.2/WindowsNoEditor/Manifest_NonUFSFiles_Win64.txt
+Release/*
