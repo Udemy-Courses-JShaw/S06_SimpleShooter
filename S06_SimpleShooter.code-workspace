@@ -1,7 +1,8 @@
 {
 	"folders": [
 		{
-			"path": "."
+			"name": "S06_SimpleShooter",
+			"path": "../SHawAZ_Test/S06_SimpleShooter"
 		}
 	],
 	"settings": {}
