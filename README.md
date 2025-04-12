@@ -1,5 +1,5 @@
 # S06_SimpleShooter
-A FPS shooter with Advanced AI, pickups, Skeletal Meshes, all using the Unreal engine 4.
+A FPS shooter with Advanced AI, pickups, Skeletal Meshes, all using the Unreal engine 5.
 Following this [Udemy.com Course](https://www.udemy.com/course/unrealcourse/), (specifically Secion 6 - SimpleShooter), I added:
 * Weapon switching for 6 unique weapons
 * Weapon Scope/Ironsights
